@@ -1,16 +1,16 @@
 import { Router } from 'express'
 import {
-  emailVerifyValidator,
-  forgotPasswordController,
-  getMeController,
-  getProfileController,
+  verifyEmailController,
   loginController,
   logoutController,
   registerController,
   resendVerifyEmailController,
+  forgotPasswordController,
+  verifyForgotPasswordController,
   resetPasswordController,
+  getMeController,
   updateMeController,
-  verifyForgotPasswordController
+  getProfileController
 } from '~/controllers/users.controllers'
 import { filterMiddleware } from '~/middlewares/common.middlewares'
 import {
@@ -22,6 +22,7 @@ import {
   registerValidator,
   resetPasswordValidator,
   updateMeValidator,
+  verifiedUserValidator,
   verifyForgotPasswordTokenValidator
 } from '~/middlewares/users.middlewares'
 import { UpdateMeReqBody } from '~/models/requests/User.requests'
@@ -58,7 +59,7 @@ usersRouter.post('/logout', accessTokenValidator, refreshTokenValidator, wrapReq
  * Method: POST
  * Body: { email_verify_token: string }
  */
-usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(emailVerifyValidator))
+usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(verifyEmailController))
 
 /**
  * Description. Verify email when user client click on the link in email
@@ -104,6 +105,7 @@ usersRouter.post('/reset-password', resetPasswordValidator, wrapRequestHandler(r
  * Header: { Authorization: Bearer <access_token> }
  */
 usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController))
+
 /**
  * Description: Update my profile
  * Path: /me
@@ -114,6 +116,7 @@ usersRouter.get('/me', accessTokenValidator, wrapRequestHandler(getMeController)
 usersRouter.patch(
   '/me',
   accessTokenValidator,
+  verifiedUserValidator,
   updateMeValidator,
   filterMiddleware<UpdateMeReqBody>([
     'name',
@@ -127,10 +130,12 @@ usersRouter.patch(
   ]),
   wrapRequestHandler(updateMeController)
 )
+
 /**
  * Description: Get user profile
  * Path: /:username
  * Method: GET
  */
 usersRouter.get('/:username', wrapRequestHandler(getProfileController))
+
 export default usersRouter
