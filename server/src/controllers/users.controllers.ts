@@ -6,11 +6,13 @@ import HTTP_STATUS from '~/constants/httpStatus'
 import { USERS_MESSAGES } from '~/constants/messages'
 import {
   ForgotPasswordReqBody,
+  GetProfileReqParams,
   LoginReqBody,
   LogoutReqBody,
   RegisterReqBody,
   ResetPasswordReqBody,
   TokenPayload,
+  UpdateMeReqBody,
   VerifyEmailReqBody,
   VerifyForgotPasswordReqBody
 } from '~/models/requests/User.requests'
@@ -47,11 +49,7 @@ export const logoutController = async (req: Request<ParamsDictionary, any, Logou
   return res.json(result)
 }
 
-export const emailVerifyValidator = async (
-  req: Request<ParamsDictionary, any, VerifyEmailReqBody>,
-  res: Response,
-  next: NextFunction
-) => {
+export const emailVerifyValidator = async (req: Request<ParamsDictionary, any, VerifyEmailReqBody>, res: Response) => {
   const { user_id } = req.decoded_email_verify_token as TokenPayload
   const user = await databaseService.users.findOne({
     _id: new ObjectId(user_id)
@@ -76,7 +74,7 @@ export const emailVerifyValidator = async (
   })
 }
 
-export const resendVerifyEmailController = async (req: Request, res: Response, next: NextFunction) => {
+export const resendVerifyEmailController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const user = await databaseService.users.findOne({ _id: new ObjectId(user_id) })
   if (!user) {
@@ -96,8 +94,7 @@ export const resendVerifyEmailController = async (req: Request, res: Response, n
 
 export const forgotPasswordController = async (
   req: Request<ParamsDictionary, any, ForgotPasswordReqBody>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   const { _id } = req.user as User
   const result = await usersService.forgotPassword((_id as ObjectId).toString())
@@ -105,8 +102,7 @@ export const forgotPasswordController = async (
 }
 export const verifyForgotPasswordController = async (
   req: Request<ParamsDictionary, any, VerifyForgotPasswordReqBody>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   return res.json({
     message: USERS_MESSAGES.VERIFY_FORGOT_PASSWORD_SUCCESS
@@ -114,19 +110,35 @@ export const verifyForgotPasswordController = async (
 }
 export const resetPasswordController = async (
   req: Request<ParamsDictionary, any, ResetPasswordReqBody>,
-  res: Response,
-  next: NextFunction
+  res: Response
 ) => {
   const { user_id } = req.decoded_forgot_password_token as TokenPayload
   const { password } = req.body
   const result = await usersService.resetPassword(user_id, password)
   return res.json(result)
 }
-export const getMeController = async (req: Request, res: Response, next: NextFunction) => {
+export const getMeController = async (req: Request, res: Response) => {
   const { user_id } = req.decoded_authorization as TokenPayload
   const user = await usersService.getMe(user_id)
   return res.json({
     message: USERS_MESSAGES.GET_ME_SUCCESS,
+    result: user
+  })
+}
+export const updateMeController = async (req: Request<ParamsDictionary, any, UpdateMeReqBody>, res: Response) => {
+  const { user_id } = req.decoded_authorization as TokenPayload
+  const { body } = req
+  const user = await usersService.updateMe(user_id, body)
+  return res.json({
+    message: USERS_MESSAGES.UPDATE_ME_SUCCESS,
+    result: user
+  })
+}
+export const getProfileController = async (req: Request<GetProfileReqParams>, res: Response, next: NextFunction) => {
+  const { username } = req.params
+  const user = await usersService.getProfile(username)
+  return res.json({
+    message: USERS_MESSAGES.GET_PROFILE_SUCCESS,
     result: user
   })
 }
