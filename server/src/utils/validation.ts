@@ -17,8 +17,9 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
     if (errors.isEmpty()) {
       return next()
     }
-
+    // mapped() is a method provided by express-validator
     const errorsObject = errors.mapped()
+    // transforms array of errors into a object
     const entityError = new EntityError({ errors: {} })
     for (const key in errorsObject) {
       const { msg } = errorsObject[key]
@@ -29,7 +30,6 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
       }
       entityError.errors[key] = msg
     }
-
     next(entityError)
   }
 }
