@@ -1,6 +1,3 @@
-export const envConfig = {
-  port: (process.env.PORT as string) || 4000,
-  //   host: process.env.HOST as string,
-  dbName: process.env.DB_NAME as string,
-  passwordSecret: process.env.PASSWORD_SECRET as string
-}
+import argv from 'minimist'
+const options = argv(process.argv.slice(2))
+export const isProduction = Boolean(options.production)

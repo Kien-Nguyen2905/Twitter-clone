@@ -13,7 +13,6 @@ export const validate = (validation: RunnableValidationChains<ValidationChain>) 
     // after validate check and asign error validate into variable req
     const errors = validationResult(req) // func validationResult get error from req
     // Không có lỗi thì next tiếp tục request
-
     if (errors.isEmpty()) {
       return next()
     }

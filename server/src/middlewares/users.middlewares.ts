@@ -40,6 +40,7 @@ const passwordSchema: ParamSchema = {
     errorMessage: USERS_MESSAGES.PASSWORD_MUST_BE_STRONG
   }
 }
+
 const confirmPasswordSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USERS_MESSAGES.CONFIRM_PASSWORD_IS_REQUIRED
@@ -117,6 +118,7 @@ const forgotPasswordTokenSchema: ParamSchema = {
     }
   }
 }
+
 const nameSchema: ParamSchema = {
   notEmpty: {
     errorMessage: USERS_MESSAGES.NAME_IS_REQUIRED
@@ -134,6 +136,7 @@ const nameSchema: ParamSchema = {
     errorMessage: USERS_MESSAGES.NAME_LENGTH_MUST_BE_FROM_1_TO_100
   }
 }
+
 const dateOfBirthSchema: ParamSchema = {
   isISO8601: {
     options: {
@@ -143,6 +146,7 @@ const dateOfBirthSchema: ParamSchema = {
     errorMessage: USERS_MESSAGES.DATE_OF_BIRTH_MUST_BE_ISO8601
   }
 }
+
 const imageSchema: ParamSchema = {
   optional: true,
   isString: {
@@ -157,6 +161,7 @@ const imageSchema: ParamSchema = {
     errorMessage: USERS_MESSAGES.IMAGE_URL_LENGTH
   }
 }
+
 const userIdSchema: ParamSchema = {
   custom: {
     options: async (value: string, { req }) => {
@@ -179,6 +184,7 @@ const userIdSchema: ParamSchema = {
     }
   }
 }
+
 export const loginValidator = validate(
   checkSchema(
     {

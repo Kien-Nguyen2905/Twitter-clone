@@ -22,6 +22,7 @@ class UsersService {
       }
     })
   }
+
   private signRefreshToken(user_id: string) {
     return signToken({
       payload: {
@@ -39,9 +40,11 @@ class UsersService {
       }
     })
   }
+
   private signAccessAndRefreshToken(user_id: string) {
     return Promise.all([this.signAccessToken(user_id), this.signRefreshToken(user_id)])
   }
+
   async register(payload: RegisterReqBody) {
     const user_id = new ObjectId()
     const email_verify_token = await this.signEmailVerifyToken(user_id.toString())
@@ -63,10 +66,12 @@ class UsersService {
       refresh_token
     }
   }
+
   async checkEmailExist(email: string) {
     const user = await databaseService.users.findOne({ email })
     return Boolean(user)
   }
+
   async login(user_id: string) {
     const [access_token, refresh_token] = await this.signAccessAndRefreshToken(user_id)
     await databaseService.refreshTokens.insertOne(
@@ -77,12 +82,14 @@ class UsersService {
       refresh_token
     }
   }
+
   async logout(refresh_token: string) {
     const result = await databaseService.refreshTokens.deleteOne({ token: refresh_token })
     return {
       message: USERS_MESSAGES.LOGOUT_SUCCESS
     }
   }
+
   async verifyEmail(user_id: string) {
     // new Date() tạo giá trị cập nhật
     // MongoDB cập nhật giá trị sau new Date() vài mili giây
@@ -108,6 +115,7 @@ class UsersService {
       refresh_token
     }
   }
+
   async resendVerifyEmail(user_id: string) {
     const email_verify_token = await this.signEmailVerifyToken(user_id)
     await databaseService.users.updateOne(
@@ -151,6 +159,7 @@ class UsersService {
       forgot_password_token
     }
   }
+
   async resetPassword(user_id: string, password: string) {
     databaseService.users.updateOne(
       { _id: new ObjectId(user_id) },
@@ -168,6 +177,7 @@ class UsersService {
       message: USERS_MESSAGES.RESET_PASSWORD_SUCCESS
     }
   }
+
   async getMe(user_id: string) {
     const user = await databaseService.users.findOne(
       { _id: new ObjectId(user_id) },
@@ -180,6 +190,7 @@ class UsersService {
     )
     return user
   }
+
   async updateMe(user_id: string, payload: UpdateMeReqBody) {
     const _payload = payload.date_of_birth ? { ...payload, date_of_birth: new Date(payload.date_of_birth) } : payload
     const user = await databaseService.users.findOneAndUpdate(
@@ -205,6 +216,7 @@ class UsersService {
     )
     return user
   }
+
   async getProfile(username: string) {
     const user = await databaseService.users.findOne(
       { username },
@@ -227,6 +239,7 @@ class UsersService {
     }
     return user
   }
+
   async follow(user_id: string, followed_user_id: string) {
     const follower = await databaseService.followers.findOne({
       user_id: new ObjectId(user_id),
@@ -247,6 +260,7 @@ class UsersService {
       message: USERS_MESSAGES.FOLLOWED
     }
   }
+
   async unfollow(user_id: string, followed_user_id: string) {
     const follower = await databaseService.followers.findOne({
       user_id: new ObjectId(user_id),
@@ -267,6 +281,23 @@ class UsersService {
     })
     return {
       message: USERS_MESSAGES.UNFOLLOW_SUCCESS
+    }
+  }
+
+  async changePassword(user_id: string, new_password: string) {
+    await databaseService.users.updateOne(
+      { _id: new ObjectId(user_id) },
+      {
+        $set: {
+          password: hashPassword(new_password)
+        },
+        $currentDate: {
+          updated_at: true
+        }
+      }
+    )
+    return {
+      message: USERS_MESSAGES.CHANGE_PASSWORD_SUCCESS
     }
   }
 }
