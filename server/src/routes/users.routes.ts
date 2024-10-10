@@ -12,7 +12,8 @@ import {
   updateMeController,
   getProfileController,
   followController,
-  unfollowController
+  unfollowController,
+  refreshTokenController
 } from '~/controllers/users.controllers'
 import { filterMiddleware } from '~/middlewares/common.middlewares'
 import {
@@ -74,6 +75,13 @@ usersRouter.post('/verify-email', emailVerifyTokenValidator, wrapRequestHandler(
  */
 usersRouter.post('/resend-verify-email', accessTokenValidator, wrapRequestHandler(resendVerifyEmailController))
 
+/**
+ * Description. Refresh Token
+ * Path: /refresh-token
+ * Method: POST
+ * Body: { refresh_token: string }
+ */
+usersRouter.post('/refresh-token', refreshTokenValidator, wrapRequestHandler(refreshTokenController))
 /**
  * Description. Submit email to reset password, send email to user
  * Path: /forgot-password

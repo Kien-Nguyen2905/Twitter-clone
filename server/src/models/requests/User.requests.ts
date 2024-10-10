@@ -12,6 +12,9 @@ export interface LoginReqBody {
   email: string
   password: string
 }
+export interface RefreshTokenReqBody {
+  refresh_token: string
+}
 export interface VerifyEmailReqBody {
   email_verify_token: string
 }
