@@ -16,9 +16,10 @@ export const handleImage = async (req: Request) => {
   // formidable hanlde upload file image
   const form = formidable({
     uploadDir: UPLOAD_TEMP_DIR,
-    maxFiles: 1,
+    maxFiles: 4,
     keepExtensions: true,
-    maxFileSize: 4000 * 1024, // 300KB
+    maxFileSize: 50000 * 1024, // 4MB
+    maxTotalFileSize: 4000 * 1024 * 4,
     // filter
     filter: function ({ name, originalFilename, mimetype }) {
       const valid = name === 'image' && Boolean(mimetype?.includes('image/'))
@@ -29,17 +30,16 @@ export const handleImage = async (req: Request) => {
       return valid
     }
   })
-  return new Promise<File>((resolve, reject) => {
+  // use Promise handle asynchronous of form.parse, throw error
+  return new Promise<File[]>((resolve, reject) => {
     form.parse(req, (err, fields, files) => {
       if (err) {
         return reject(err)
       }
-      // eslint-disable-next-line no-extra-boolean-cast
       if (!Boolean(files.image)) {
         return reject(new Error('File is empty'))
       }
-      console.log((files.image as File[])[0])
-      resolve((files.image as File[])[0])
+      resolve(files.image as File[])
     })
   })
 }
