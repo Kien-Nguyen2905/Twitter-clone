@@ -26,7 +26,7 @@ import usersService from '~/services/users.services'
 export const loginController = async (req: Request<ParamsDictionary, any, LoginReqBody>, res: Response) => {
   const user = req.user as User
   const user_id = user._id as ObjectId
-  const result = await usersService.login(user_id.toString())
+  const result = await usersService.login({ user_id: user_id.toString(), verify: UserVerifyStatus.Unverified })
   return res.json({
     message: USERS_MESSAGES.LOGIN_SUCCESS,
     result
@@ -102,8 +102,8 @@ export const refreshTokenController = async (
   res: Response
 ) => {
   const { refresh_token } = req.body
-  const { user_id, verify } = req.decoded_refresh_token as TokenPayload
-  const result = await usersService.refreshToken({ user_id, refresh_token, verify })
+  const { user_id, verify, exp } = req.decoded_refresh_token as TokenPayload
+  const result = await usersService.refreshToken({ user_id, refresh_token, verify, exp })
   return res.json({
     message: USERS_MESSAGES.REFRESH_TOKEN_SUCCESS,
     result
@@ -114,7 +114,10 @@ export const forgotPasswordController = async (
   res: Response
 ) => {
   const { _id } = req.user as User
-  const result = await usersService.forgotPassword((_id as ObjectId).toString())
+  const result = await usersService.forgotPassword({
+    user_id: (_id as ObjectId).toString(),
+    verify: UserVerifyStatus.Verified
+  })
   return res.json(result)
 }
 export const verifyForgotPasswordController = async (
